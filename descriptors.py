@@ -45,8 +45,3 @@ class ValidarFrecuenciaCardiaca:
 
         instance.__dict__[self.nombre_atributo] = value
         
-
-
-        
-
-    

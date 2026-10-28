@@ -31,10 +31,27 @@ class SalaUrgencias:
     def pacientes_con_fiebre(self):
         tienen_fiebre = [paciente for paciente in self._pacientes if paciente.tiene_fiebre]
         return tienen_fiebre
+
+    @property
+    def promedio_temperatura(self): 
+        if not self._pacientes:
+            return 0.0
+        return sum(paciente.temperatura for paciente in self._pacientes) / len(self._pacientes)
+
+    @property
+    def resumen_triaje(self):
+        conteo = {"ROJO":0,"AMARILLO":0,"VERDE": 0}
+        for paciente in self._pacientes:
+            color = paciente.color_triaje
+            if color in conteo: 
+                conteo[color] += 1
+
+        return conteo
         
     def obtener_prioridad_atencion(self):
 
         return sorted(self._pacientes,reverse=True)
+    
 
     
     

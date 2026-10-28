@@ -9,10 +9,15 @@ class Paciente:
         self.temperatura = temperatura
         self.frecuencia_cardiaca = frecuencia_cardiaca
         self._medicamentos = []
+        self._dado_de_alta = False
+
 
     def administrar_medicamento(self,medicamento):
         if not isinstance(medicamento,Medicamento):
             raise TypeError("Debe ser una instancia de tipo medicamento")
+
+        if self._dado_de_alta is True: 
+            raise ValueError("No se puede administrar fármacos a un paciente egresado")
         self._medicamentos.append(medicamento)
 
 
@@ -28,6 +33,30 @@ class Paciente:
         frecuencia_cardiaca = int(texto_partes[2])
 
         return cls(nombre,temperatura,frecuencia_cardiaca)
+
+    @classmethod
+    def desde_lista_expedientes(cls,lista_cadenas:list[str]):
+         lista_expedientes = []
+         for texto  in lista_cadenas: 
+             paciente_creado = cls.desde_expediente(texto)
+             lista_expedientes.append(paciente_creado)
+
+         return lista_expedientes
+        
+        
+    @property
+    def dado_de_alta(self):
+        return self._dado_de_alta
+
+    @dado_de_alta.setter
+    def dado_de_alta(self,nuevo_estado): 
+        if not isinstance(nuevo_estado,(bool)): 
+            raise TypeError("El dato debe ser de tipo booleano")
+        self._dado_de_alta = nuevo_estado
+        if nuevo_estado:
+            print("El paciente fue dado de alta") 
+            
+
 
     @property
     def tiene_fiebre(self) -> bool:
