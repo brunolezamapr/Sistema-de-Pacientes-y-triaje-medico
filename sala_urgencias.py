@@ -51,13 +51,32 @@ class SalaUrgencias:
     def obtener_prioridad_atencion(self):
 
         return sorted(self._pacientes,reverse=True)
-    
+
+    def exportar_reporte(self) -> dict:
+
+        return {
+            "Sala": self.nombre_sala,
+            "Total_pacientes": len(self),
+            "Resumen_triaje": self.resumen_triaje,
+            "Promedio_temperatura": round(self.promedio_temperatura,2),
+            "pacientes": [paciente.to_dict() for paciente in self._pacientes]
+        }
+
+    def buscar_por_dni(self,dni:str) -> Paciente | None:
+
+        if not Paciente.es_dni_valido(dni):
+            return None
+
+        for paciente in self._pacientes:
+            if paciente.dni == dni.strip():
+                return paciente
+
+        return None          
+
 
     
-    
-    
+    def filtrar_por_triaje(self,color:str) -> list[Paciente]:
 
-        
-
-        
+        color_mayusculas = color.upper()
+        return [p for p in self._pacientes if p.color_triaje == color_mayusculas] 
     
