@@ -1,3 +1,4 @@
+from exceptions import SignoVitalInvalidoError,PacienteEgresadoError
 
 class ValidarSignosVitales:
 
@@ -17,7 +18,7 @@ class ValidarSignosVitales:
             raise TypeError("La temperatura debe ser de tipo entero o flotante")
 
         if not (30.0 < value < 45.0):
-            raise ValueError("La temperatura esta fuera del rango biológico")
+            raise SignoVitalInvalidoError()
 
         instance.__dict__[self.nombre_atributo] = float(value)
 
