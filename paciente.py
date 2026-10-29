@@ -1,11 +1,19 @@
 from descriptors import ValidarSignosVitales,ValidarFrecuenciaCardiaca
 from medicamento import Medicamento
+from exceptions import PacienteEgresadoError
+
 class Paciente:
 
     temperatura = ValidarSignosVitales("temperatura")
     frecuencia_cardiaca = ValidarFrecuenciaCardiaca("frecuencia_cardiaca")
-    def __init__(self,nombre:str,temperatura:float,frecuencia_cardiaca:int):
+    def __init__(self,nombre:str,dni:str,temperatura:float,frecuencia_cardiaca:int):
+
+        if not Paciente.es_dni_valido(dni):
+            raise ValueError(
+                f"El DNI '{dni}' no es valido.Debe contener exactamente 8 digitos númericos"
+            )
         self.nombre = nombre.strip()
+        self.dni = dni.strip()
         self.temperatura = temperatura
         self.frecuencia_cardiaca = frecuencia_cardiaca
         self._medicamentos = []
@@ -17,22 +25,42 @@ class Paciente:
             raise TypeError("Debe ser una instancia de tipo medicamento")
 
         if self._dado_de_alta is True: 
-            raise ValueError("No se puede administrar fármacos a un paciente egresado")
+            raise PacienteEgresadoError() 
         self._medicamentos.append(medicamento)
+
+    def to_dict(self) -> dict:
+
+        return {
+            "nombre":self.nombre,
+            "dni": self.dni,
+            "temperatura": self.temperatura,
+            "frecuencia_cardiaca": self.frecuencia_cardiaca,
+            "dado_de_alta": self.dado_de_alta,
+            "color_triaje": self.color_triaje,
+            "medicamentos": [
+                {
+                    "nombre": med.nombre,
+                    "dosis_mg": med.dosis_mg,
+                    "hora_aplicacion": med.hora_aplicacion,
+                }
+                for med in self._medicamentos
+            ]
+        }
 
 
     @classmethod
     def desde_expediente(cls,texto_expediente:str) -> "Paciente":
 
         texto_partes = texto_expediente.split(",")
-        if len(texto_partes) != 3:
-            raise ValueError("El formato debe tener el siguiente: Nombre,Temperatura,FrecuenciaCardiaca")
+        if len(texto_partes) != 4:
+            raise ValueError("El formato debe tener el siguiente: Nombre,DNI,Temperatura,FrecuenciaCardiaca")
 
         nombre = texto_partes[0]
-        temperatura = float(texto_partes[1])
-        frecuencia_cardiaca = int(texto_partes[2])
+        dni = texto_partes[1]
+        temperatura = float(texto_partes[2])
+        frecuencia_cardiaca = int(texto_partes[3])
 
-        return cls(nombre,temperatura,frecuencia_cardiaca)
+        return cls(nombre,dni,temperatura,frecuencia_cardiaca)
 
     @classmethod
     def desde_lista_expedientes(cls,lista_cadenas:list[str]):
@@ -51,7 +79,7 @@ class Paciente:
     @dado_de_alta.setter
     def dado_de_alta(self,nuevo_estado): 
         if not isinstance(nuevo_estado,(bool)): 
-            raise TypeError("El dato debe ser de tipo booleano")
+            raise ValueError("El estado debe ser de tipo booleano")
         self._dado_de_alta = nuevo_estado
         if nuevo_estado:
             print("El paciente fue dado de alta") 
@@ -75,6 +103,7 @@ class Paciente:
             return "AMARILLO"
         else:
             return "VERDE"
+        
 
     @staticmethod 
     def es_dni_valido(dni:str) -> bool:
